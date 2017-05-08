@@ -14,12 +14,12 @@ https://create.arduino.cc/projecthub/Aritro/security-access-using-rfid-reader-f7
 -Link here-
 
 ### Parts
-Arduino UNO Rev3 //
-RFID-RC522 //
-Button (Switch, 3 pins) //
-LEDS (5mm) //
-7-segment_Display - http://jmorgan-itct.wikia.com/wiki/7-segment_Display //
-More 7-segment-display + Karnaugh Genomgång - http://gorgeous-karnaugh.com/tutorials/practical-usage/7-segment-led-display.html //
+Arduino UNO Rev3 <br>
+RFID-RC522 <br>
+Button (Switch, 3 pins) <br>
+LEDS (5mm) <br>
+7-segment_Display - http://jmorgan-itct.wikia.com/wiki/7-segment_Display <br>
+More 7-segment-display + Karnaugh Genomgång - http://gorgeous-karnaugh.com/tutorials/practical-usage/7-segment-led-display.html <br>
 
 ## Examination - Arbetet	ska	redovisas
 1. som	en	demonstration	inför	handledare/lärare	med	
