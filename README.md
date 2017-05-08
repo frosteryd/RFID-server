@@ -19,6 +19,7 @@ RFID-RC522
 Button (Switch, 3 pins)
 LEDS (1,6V)
 7-segment_Display - http://jmorgan-itct.wikia.com/wiki/7-segment_Display
+More 7-segment-display + Karnaugh Genomgång - http://gorgeous-karnaugh.com/tutorials/practical-usage/7-segment-led-display.html
 
 ## Examination - Arbetet	ska	redovisas
 1. som	en	demonstration	inför	handledare/lärare	med	
