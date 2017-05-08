@@ -79,4 +79,4 @@ void redBlink() {
   digitalWrite(red_led, HIGH);
   delay(1000);
   digitalWrite(red_led, LOW);
-};
+}
