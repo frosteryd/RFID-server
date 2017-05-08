@@ -13,6 +13,12 @@ https://create.arduino.cc/projecthub/Aritro/security-access-using-rfid-reader-f7
 ### Overleaf
 -Link here-
 
+### Parts
+Arduino UNO Rev3
+RFID-RC522
+Button (Switch, 3 pins)
+LEDS (1,6V)
+
 ## Examination - Arbetet	ska	redovisas
 1. som	en	demonstration	inför	handledare/lärare	med	
 individuell	redovisning	av	delmoment.
