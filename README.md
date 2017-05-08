@@ -10,8 +10,7 @@ https://drive.google.com/drive/u/0/folders/0B7VSevSCf95bdTdnS3FhekRWczg
 ### Overleaf
 -Link here-
 
-### Examination 
-Arbetet	ska	redovisas
+## Examination - Arbetet	ska	redovisas
 1. som	en	demonstration	inför	handledare/lärare	med	
 individuell	redovisning	av	delmoment.
 2. med	skriftlig	rapport	(1	rapport/grupp)
