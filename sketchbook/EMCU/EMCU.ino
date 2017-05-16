@@ -134,7 +134,7 @@ void segDisplay(int nr) {
     ledOn(seg_bit_0);
     ledOff(seg_bit_1);
   } else if(nr == 2) {
-    ledOn(seg_bit_0);
+    ledOff(seg_bit_0);
     ledOn(seg_bit_1);
   } else {
     ledOff(seg_bit_0);
