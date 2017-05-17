@@ -12,6 +12,8 @@
 #define SS_PIN 10
 #define RST_PIN 9
 MFRC522 mfrc522(SS_PIN, RST_PIN);   // Create MFRC522 instance.
+char RFID_data[12], data_store[10][12];
+int array_count = 1; 
 
 int busy = 0;
 int mode = 0;
@@ -42,6 +44,7 @@ void setup()
   mfrc522.PCD_Init();   // Initiate MFRC522
   Serial.println("Approximate your card to the reader...");
   Serial.println();
+  strcpy(data_store[1], "EE A3 41 D5");
 
 }
 void loop()
@@ -65,7 +68,7 @@ void loop()
     } 
     else if(mode == 1) { // Mode 1 is for adding new cards to the list of auth users
       segDisplay(1);
-      AddKeycard();
+      AddCard();
       access = 0;
     } 
     else if(mode == 2) { // Mode 2 is for removing access for cards
@@ -78,19 +81,111 @@ void loop()
   }
 }
 
+void AddCard(){
+  int cardAuthorized = CheckRFID();
+  delay(1000);
+  if(cardAuthorized == 1){
+     while(true){
+              // Look for new cards
+        if (mfrc522.PICC_IsNewCardPresent()) 
+        {
+          Serial.println("Retunerar med första");
+          break;
+        }
+        // Select one of the cards
+        if (mfrc522.PICC_ReadCardSerial()) 
+        {
+          Serial.println("Retunerar med andra");
+          break;
+        }
+    }
+        Serial.println("Registerar kort och låser : ");
+        setBusy(1);
+        //Show UID on serial monitor
+        Serial.print("UID tag :");
+        String content= "";
+        byte letter;
+        for (byte i = 0; i < mfrc522.uid.size; i++) 
+        {
+          Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
+          Serial.print(mfrc522.uid.uidByte[i], HEX);
+          content.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
+          content.concat(String(mfrc522.uid.uidByte[i], HEX));
+        }
+        Serial.println();
+        Serial.print("Message : ");
+        content.toUpperCase();
+        String Compareword = content.substring(1); // HÄR ÄR KODEN PÅ KORTET SOM SKA REGISTRERAS
+
+        array_count++;
+        strcpy(data_store[array_count], "AF B5 1E 56"); // HÄR ÄR DÄR DEN STRÄNGEN SKA TRYCKAS IN! 
+        Serial.println("Ska vara added : ");
+      setBusy(0);
+  } else {
+    
+  }  
+
+}
+
+void RemoveCard(){
+  int cardAuthorized = CheckRFID();
+  delay(1000);
+  if(cardAuthorized == 1){
+     while(true){
+              // Look for new cards
+        if (mfrc522.PICC_IsNewCardPresent()) 
+        {
+          Serial.println("Retunerar med första");
+          break;
+        }
+        // Select one of the cards
+        if (mfrc522.PICC_ReadCardSerial()) 
+        {
+          Serial.println("Retunerar med andra");
+          break;
+        }
+    }
+        Serial.println("Registerar kort och låser : ");
+        setBusy(1);
+        //Show UID on serial monitor
+        Serial.print("UID tag :");
+        String content= "";
+        byte letter;
+        for (byte i = 0; i < mfrc522.uid.size; i++) 
+        {
+          Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
+          Serial.print(mfrc522.uid.uidByte[i], HEX);
+          content.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
+          content.concat(String(mfrc522.uid.uidByte[i], HEX));
+        }
+        Serial.println();
+        Serial.print("Message : ");
+        content.toUpperCase();
+        String Compareword = content.substring(1); // HÄR ÄR KODEN PÅ KORTET SOM SKA TAS BORT
+
+        array_count--;
+        // TODO SÖKA I ARRAY EFTER KODEN OCH TA BORT DEN. AUTO INCREMENTA LISTAN 
+        Serial.println("Ska vara Borttagen : ");
+      setBusy(0);
+  } else {
+    
+  }  
+
+}
+
 /*
   Function to scan for keycards and verify them.
 */
-void CheckRFID() {
+int CheckRFID(){
     // Look for new cards
   if ( ! mfrc522.PICC_IsNewCardPresent()) 
   {
-    return;
+    return 0;
   }
   // Select one of the cards
   if ( ! mfrc522.PICC_ReadCardSerial()) 
   {
-    return;
+    return 0;
   }
   setBusy(1);
   //Show UID on serial monitor
@@ -107,37 +202,41 @@ void CheckRFID() {
   Serial.println();
   Serial.print("Message : ");
   content.toUpperCase();
-  if (content.substring(1) == "EE A3 41 D5") //change here the UID of the card/cards that you want to give access
-  {
-    Serial.println("Authorized access");
-    Serial.println();
-    ledBlink(green_led, 1000);
-    delay(500);
-    access = 1;
-    setBusy(0);
-  }
-
-  else   {
-    Serial.println(" Access denied");
-    ledBlink(red_led, 1000);
-    delay(500);
-    access = 0;
-    setBusy(0);
-  }
+  String Compareword = content.substring(1);
+  int checkCardAccess = CheckCard(Compareword);
+      if (checkCardAccess == 1) 
+      {
+        Serial.println("Authorized access");
+        Serial.println();
+        ledBlink(green_led, 1000);
+        delay(500);
+        setBusy(0);
+        return 1;
+      }
+    
+      else   {
+        Serial.println("Not authorized access");
+        Serial.println();
+        ledBlink(red_led, 1000);
+        delay(500);
+        setBusy(0);
+        return 0;
+      }
 }
 
-/*
-  Function to add a card to the authorized list
-*/
-void AddKeycard() {
-  CheckRFID();
-  ledOn(red_led);
-  if(access == 1) {
-    setBusy(1);
-    ledBlink(green_led, 500);
-    setBusy(0);
-  }
-  delay(500);
+int CheckCard(String Password){
+
+  for( int i = 0; i < 10; i++)
+    if (Password == data_store[i]) 
+      {
+      return 1;
+
+      }
+    
+      else   {
+
+      }
+    return 0;
 }
 
 void ledOn(int led_nr) {
