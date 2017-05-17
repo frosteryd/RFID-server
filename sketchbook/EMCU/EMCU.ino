@@ -13,8 +13,9 @@
 #define RST_PIN 9
 MFRC522 mfrc522(SS_PIN, RST_PIN);   // Create MFRC522 instance.
 
-int working = 0;  
+int busy = 0;
 int mode = 0;
+int access = 0;
 
 int green_led = 3;
 int red_led = 4;
@@ -32,7 +33,7 @@ void setup()
   pinMode(blue_led, OUTPUT);
 
   pinMode(mode_button, INPUT);
-  
+
   pinMode(seg_bit_0, OUTPUT);
   pinMode(seg_bit_1, OUTPUT);
 
@@ -45,7 +46,7 @@ void setup()
 }
 void loop()
 {
-  if(working == 0) { // Might be used to prevent mulitple things running at the same time
+  if(busy == 0) { // Might be used to prevent mulitple things running at the same time
     /* Check if the button is pressed and change mode */
     if(digitalRead(mode_button) == LOW) {
       setBusy(1);
@@ -59,60 +60,84 @@ void loop()
     /* Perform action based on what mode is set */
     if(mode == 0) { // Mode 0 is default and i looking for a card to be swiped
       segDisplay(0);
-      // Look for new cards
-      if ( ! mfrc522.PICC_IsNewCardPresent()) 
-      {
-        return;
-      }
-      // Select one of the cards
-      if ( ! mfrc522.PICC_ReadCardSerial()) 
-      {
-        return;
-      }
-      setBusy(1);
-      //Show UID on serial monitor
-      Serial.print("UID tag :");
-      String content= "";
-      byte letter;
-      for (byte i = 0; i < mfrc522.uid.size; i++) 
-      {
-        Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
-        Serial.print(mfrc522.uid.uidByte[i], HEX);
-        content.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
-        content.concat(String(mfrc522.uid.uidByte[i], HEX));
-      }
-      Serial.println();
-      Serial.print("Message : ");
-      content.toUpperCase();
-      if (content.substring(1) == "EE A3 41 D5") //change here the UID of the card/cards that you want to give access
-      {
-        Serial.println("Authorized access");
-        Serial.println();
-        ledBlink(green_led, 1000);
-        delay(3000);
-      }
-
-      else   {
-        Serial.println(" Access denied");
-        ledBlink(red_led, 1000);
-        delay(3000);
-      }
-      
-      setBusy(0);
-      
+      CheckRFID();
+      access = 0;
     } 
     else if(mode == 1) { // Mode 1 is for adding new cards to the list of auth users
       segDisplay(1);
-
+      AddKeycard();
+      access = 0;
     } 
     else if(mode == 2) { // Mode 2 is for removing access for cards
       segDisplay(2);
-
+      access = 0;
     } 
     else { // If the mode doesn't match any exsiting it resets to 0
       mode = 0;
     }
   }
+}
+
+/*
+  Function to scan for keycards and verify them.
+*/
+void CheckRFID() {
+    // Look for new cards
+  if ( ! mfrc522.PICC_IsNewCardPresent()) 
+  {
+    return;
+  }
+  // Select one of the cards
+  if ( ! mfrc522.PICC_ReadCardSerial()) 
+  {
+    return;
+  }
+  setBusy(1);
+  //Show UID on serial monitor
+  Serial.print("UID tag :");
+  String content= "";
+  byte letter;
+  for (byte i = 0; i < mfrc522.uid.size; i++) 
+  {
+    Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
+    Serial.print(mfrc522.uid.uidByte[i], HEX);
+    content.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
+    content.concat(String(mfrc522.uid.uidByte[i], HEX));
+  }
+  Serial.println();
+  Serial.print("Message : ");
+  content.toUpperCase();
+  if (content.substring(1) == "EE A3 41 D5") //change here the UID of the card/cards that you want to give access
+  {
+    Serial.println("Authorized access");
+    Serial.println();
+    ledBlink(green_led, 1000);
+    delay(500);
+    access = 1;
+    setBusy(0);
+  }
+
+  else   {
+    Serial.println(" Access denied");
+    ledBlink(red_led, 1000);
+    delay(500);
+    access = 0;
+    setBusy(0);
+  }
+}
+
+/*
+  Function to add a card to the authorized list
+*/
+void AddKeycard() {
+  CheckRFID();
+  ledOn(red_led);
+  if(access == 1) {
+    setBusy(1);
+    ledBlink(green_led, 500);
+    setBusy(0);
+  }
+  delay(500);
 }
 
 void ledOn(int led_nr) {
@@ -133,10 +158,12 @@ void segDisplay(int nr) {
   if(nr == 1) {
     ledOn(seg_bit_0);
     ledOff(seg_bit_1);
-  } else if(nr == 2) {
+  } 
+  else if(nr == 2) {
     ledOff(seg_bit_0);
     ledOn(seg_bit_1);
-  } else {
+  } 
+  else {
     ledOff(seg_bit_0);
     ledOff(seg_bit_1);
   }
@@ -144,10 +171,12 @@ void segDisplay(int nr) {
 
 void setBusy(int busy) {
   if(busy == 1) {
-    working = 1;
+    busy = 1;
     ledOn(blue_led);
-  } else {
-    working = 0;
+  } 
+  else {
+    busy = 0;
     ledOff(blue_led);
   }
 }
+
