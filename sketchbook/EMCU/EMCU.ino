@@ -13,7 +13,7 @@
 #define RST_PIN 9
 MFRC522 mfrc522(SS_PIN, RST_PIN);   // Create MFRC522 instance.
 char RFID_data[12], data_store[10][12];
-int array_count = 1;
+int array_count = 0;
 
 int busy = 0;
 int mode = 0;
@@ -45,7 +45,7 @@ void setup()
   Serial.println("Approximate your card to the reader...");
   Serial.println();
   String startword = "EE A3 41 D5";
-  startword.toCharArray(data_store[1], 12);
+  startword.toCharArray(data_store[0], 12);
 
 }
 void loop()
@@ -85,7 +85,6 @@ void loop()
 
 void AddCard() {
   int cardAuthorized = CheckRFID();
-  delay(2000);
   if (cardAuthorized == 1) {
     //    while(true){
 
@@ -102,10 +101,10 @@ void AddCard() {
     }
     setBusy(1);
 
+    Serial.print("CARD ADDED: ");
     String content;
     for (byte i = 0; i < mfrc522.uid.size; i++)
     {
-      Serial.print("CARD ADDED: ");
       Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
       Serial.print(mfrc522.uid.uidByte[i], HEX);
       content.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
@@ -117,6 +116,7 @@ void AddCard() {
     String Cword = content.substring(1); //"AF B5 1E 56";
     Cword.toCharArray(data_store[array_count], 12);
     Serial.println("Går ur loop : ");
+    delay(2000);
     setBusy(0);
   }  else {
 
@@ -126,7 +126,6 @@ void AddCard() {
 
 void RemoveCard() {
   int cardAuthorized = CheckRFID();
-  delay(1000);
   if (cardAuthorized == 1) {
 
     Serial.println("Väntar på nytt : ");
@@ -142,21 +141,19 @@ void RemoveCard() {
     }
     setBusy(1);
 
+    Serial.print("CARD DELETED: ");
     String content;
     for (byte i = 0; i < mfrc522.uid.size; i++)
     {
-      Serial.print("CARD DELETED: ");
       Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
       Serial.print(mfrc522.uid.uidByte[i], HEX);
       content.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
       content.concat(String(mfrc522.uid.uidByte[i], HEX));
     }
-    // SÖK EFTER STRING I CHAR ARRAY
-    // TA BORT STRINGEN PÅ DET INDEX
+    //TODO
     // SKRIV OM LISTAN MED NYY INDEX
     // ARRAY COUNT --
     content.toUpperCase();
-    array_count++;
     char tempDeletString[12];
     String Cword = content.substring(1); //"AF B5 1E 56";
     Cword.toCharArray(tempDeletString, 12);
@@ -172,6 +169,7 @@ void RemoveCard() {
       }   
     }
     Serial.println("Går ur loop : ");
+    delay(2000);
     setBusy(0);
   } else {
 
