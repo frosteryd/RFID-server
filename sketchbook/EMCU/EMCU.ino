@@ -115,7 +115,6 @@ void AddCard() {
     array_count++;
     String Cword = content.substring(1); //"AF B5 1E 56";
     Cword.toCharArray(data_store[array_count], 12);
-    Serial.println("Går ur loop : ");
     delay(2000);
     setBusy(0);
   }  else {
@@ -161,14 +160,11 @@ void RemoveCard() {
     for( int i=0; i <10; i++){
       s = strstr(data_store[i],tempDeletString);
       if(s != NULL){
-        memset(&data_store[i], 0, 12);
-        Serial.println("Kort borttaget");
-        
+        memset(&data_store[i], 0, 12);   
       }
       else{
       }   
     }
-    Serial.println("Går ur loop : ");
     delay(2000);
     setBusy(0);
   } else {
@@ -282,3 +278,4 @@ void setBusy(int busy) {
     ledOff(blue_led);
   }
 }
+
