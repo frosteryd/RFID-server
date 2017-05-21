@@ -15,6 +15,9 @@ MFRC522 mfrc522(SS_PIN, RST_PIN);   // Create MFRC522 instance.
 char RFID_data[12], data_store[10][12];
 int array_count = 0;
 
+int motherboard_pin = 2;
+int buzzer_pin = 1;
+
 int busy = 0;
 int mode = 0;
 int access = 0;
@@ -30,6 +33,8 @@ int seg_bit_1 = 8;
 
 void setup()
 {
+  pinMode(motherboard_pin, OUTPUT);
+  pinMode(buzzer_pin, OUTPUT);
   pinMode(green_led, OUTPUT);
   pinMode(red_led, OUTPUT);
   pinMode(blue_led, OUTPUT);
@@ -64,7 +69,7 @@ void loop()
     /* Perform action based on what mode is set */
     if (mode == 0) { // Mode 0 is default and i looking for a card to be swiped
       segDisplay(0);
-      CheckRFID();
+      CheckStart();
       access = 0;
     }
     else if (mode == 1) { // Mode 1 is for adding new cards to the list of auth users
@@ -83,13 +88,24 @@ void loop()
   }
 }
 
+void CheckStart(){
+  int should_start = CheckRFID();
+  if(should_start == 1){
+    Serial.println("Ska lysa : ");
+    StartSignal();
+    Serial.println("Ska sluta lysa : ");
+  }
+  
+}
+
 void AddCard() {
   int cardAuthorized = CheckRFID();
   if (cardAuthorized == 1) {
     //    while(true){
 
     Serial.println("Väntar på nytt : ");
-    delay(2000);
+    ledBlink(green_led, 500);
+    delay(3000);
     if (!mfrc522.PICC_IsNewCardPresent())  //TODO LÄGG IN I LOOP FÖR ATT VÄNTA PÅ ETT KORT
     {
       return;
@@ -115,6 +131,7 @@ void AddCard() {
     array_count++;
     String Cword = content.substring(1); //"AF B5 1E 56";
     Cword.toCharArray(data_store[array_count], 12);
+    ledBlink(green_led, 250);
     delay(2000);
     setBusy(0);
   }  else {
@@ -128,7 +145,8 @@ void RemoveCard() {
   if (cardAuthorized == 1) {
 
     Serial.println("Väntar på nytt : ");
-    delay(2000);
+    ledBlink(red_led, 500);
+    delay(3000);
     if (!mfrc522.PICC_IsNewCardPresent())  //TODO LÄGG IN I LOOP FÖR ATT VÄNTA PÅ ETT KORT
     {
       return;
@@ -165,6 +183,7 @@ void RemoveCard() {
       else{
       }   
     }
+    ledBlink(red_led, 250);
     delay(2000);
     setBusy(0);
   } else {
@@ -218,6 +237,7 @@ int CheckRFID() {
     Serial.println("Not authorized access");
     Serial.println();
     ledBlink(red_led, 1000);
+    buzzerSignal();
     delay(500);
     setBusy(0);
     return 0;
@@ -278,4 +298,19 @@ void setBusy(int busy) {
     ledOff(blue_led);
   }
 }
+
+void StartSignal() {
+   digitalWrite(motherboard_pin, HIGH);
+   delay(1000); // Kan behöva finjustera delayen så att signalen varken är för lång eller för kort. Sätter den extra lång för demonstrationen.
+   digitalWrite(motherboard_pin, LOW);
+}
+
+void buzzerSignal() {
+  Serial.println("Spelar ljud");
+   digitalWrite(buzzer_pin, HIGH);
+   delay(1000); // Kan behöva finjustera delayen så att signalen varken är för lång eller för kort. Sätter den extra lång för demonstrationen.
+   digitalWrite(buzzer_pin, LOW);
+   Serial.println("slutar spela");
+}
+
 
