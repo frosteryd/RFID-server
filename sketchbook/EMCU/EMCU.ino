@@ -22,6 +22,8 @@ int busy = 0;
 int mode = 0;
 int access = 0;
 
+int motherboard_pin = 2;
+
 int green_led = 3;
 int red_led = 4;
 int blue_led = 5;
@@ -34,7 +36,11 @@ int seg_bit_1 = 8;
 void setup()
 {
   pinMode(motherboard_pin, OUTPUT);
+<<<<<<< HEAD
   pinMode(buzzer_pin, OUTPUT);
+=======
+  
+>>>>>>> a17b5853ead1c54cb24be2e28134c30d0d5fb88e
   pinMode(green_led, OUTPUT);
   pinMode(red_led, OUTPUT);
   pinMode(blue_led, OUTPUT);
@@ -69,7 +75,14 @@ void loop()
     /* Perform action based on what mode is set */
     if (mode == 0) { // Mode 0 is default and i looking for a card to be swiped
       segDisplay(0);
+<<<<<<< HEAD
       CheckStart();
+=======
+      access = CheckRFID();
+      if(access == 1) {
+         StartSignal();
+      }
+>>>>>>> a17b5853ead1c54cb24be2e28134c30d0d5fb88e
       access = 0;
     }
     else if (mode == 1) { // Mode 1 is for adding new cards to the list of auth users
@@ -312,5 +325,3 @@ void buzzerSignal() {
    digitalWrite(buzzer_pin, LOW);
    Serial.println("slutar spela");
 }
-
-
