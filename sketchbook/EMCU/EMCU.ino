@@ -19,6 +19,8 @@ int busy = 0;
 int mode = 0;
 int access = 0;
 
+int motherboard_pin = 2;
+
 int green_led = 3;
 int red_led = 4;
 int blue_led = 5;
@@ -30,6 +32,8 @@ int seg_bit_1 = 8;
 
 void setup()
 {
+  pinMode(motherboard_pin, OUTPUT);
+  
   pinMode(green_led, OUTPUT);
   pinMode(red_led, OUTPUT);
   pinMode(blue_led, OUTPUT);
@@ -279,3 +283,8 @@ void setBusy(int busy) {
   }
 }
 
+void StartSignal() {
+   digitalWrite(motherboard_pin, HIGH);
+   delay(1000); // Kan behöva finjustera delayen så att signalen varken är för lång eller för kort. Sätter den extra lång för demonstrationen.
+   digitalWrite(motherboard_pin, LOW);
+}
