@@ -68,7 +68,10 @@ void loop()
     /* Perform action based on what mode is set */
     if (mode == 0) { // Mode 0 is default and i looking for a card to be swiped
       segDisplay(0);
-      CheckRFID();
+      access = CheckRFID();
+      if(access == 1) {
+         StartSignal();
+      }
       access = 0;
     }
     else if (mode == 1) { // Mode 1 is for adding new cards to the list of auth users
